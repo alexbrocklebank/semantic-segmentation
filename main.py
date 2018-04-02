@@ -64,16 +64,16 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     # Upscale convolution by 2x
     upscale_1 = tf.layers.conv2d_transpose(conv_1x1, num_classes, 4, 2, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
-    # Add in Layer 4 Skip connection
-    input = tf.add(upscale_1, vgg_layer4_out)
     # Upscale by 2x
-    input = tf.layers.conv2d_transpose(input, num_classes, 4, 2, padding='same',
+    input = tf.layers.conv2d_transpose(upscale_1, num_classes, 4, 2, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
-    # Add in Layer 3 skip connection
-    input = tf.add(input, vgg_layer3_out)
+    # Add in Layer 4 Skip connection
+    input = tf.add(input, vgg_layer4_out)
     # Upscale by 8x
     input = tf.layers.conv2d_transpose(input, num_classes, 16, 8, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    # Add in Layer 3 skip connection
+    input = tf.add(input, vgg_layer3_out)
 
     # Debugging Output
     #tf.Print(upscale_1, [tf.shape(upscale_1)[1:3]])
@@ -120,7 +120,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     for epoch in epochs:
         for image, label in get_batches_fn(batch_size):
             # Training
-
+            pass
     pass
 tests.test_train_nn(train_nn)
 
