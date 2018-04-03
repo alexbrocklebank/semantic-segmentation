@@ -125,6 +125,9 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
+    learn_rate = 0.0005
+    kp = 0.50
+
     sess.run(tf.global_variables_initializer())
 
     print("Training...")
@@ -134,7 +137,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
         for image, label in get_batches_fn(batch_size):
             # Training
             _, loss = sess.run([train_op, cross_entropy_loss],
-                                feed_dict={input_image: image, correct_label: label})
+                                feed_dict={input_image: image, correct_label: label, keep_prob: kp, learning_rate: learn_rate})
             print("Loss: {:.3f}".format(loss))
         print()
 tests.test_train_nn(train_nn)
@@ -143,9 +146,9 @@ tests.test_train_nn(train_nn)
 def run():
     num_classes = 2
     image_shape = (160, 576)
-    #learning_rate = 0.01
-    batch_size = 5
-    epochs = 6
+
+    batch_size = 16
+    epochs = 24
     data_dir = './data'
     runs_dir = './runs'
     tests.test_for_kitti_dataset(data_dir)
@@ -173,7 +176,7 @@ def run():
         # TODO: Build NN using load_vgg, layers, and optimize function
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
         final_layer = layers(layer3_out, layer4_out, layer7_out, num_classes)
-        final_layer, optimizer, cross_entropy_loss = optimize(final_layer, label, learning_rate, num_classes)
+        logits, optimizer, cross_entropy_loss = optimize(final_layer, label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
         train_nn(sess, epochs, batch_size, get_batches_fn, optimizer, cross_entropy_loss, input_image, label, keep_prob, learning_rate)
